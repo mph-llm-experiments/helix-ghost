@@ -41,8 +41,8 @@ func openEditor(editor string, fn string) error {
 }
 
 // openEditorInTerminal opens the editor in a new terminal window (for daemon mode).
-// Supports ghostty, kitty, alacritty, wezterm natively via -e flag, and
-// falls back to AppleScript for macOS Terminal.app.
+// On macOS, app-based terminals (Ghostty, kitty, etc.) are launched via `open -nWa`
+// to avoid IPC issues with already-running instances. Terminal.app uses AppleScript.
 func openEditorInTerminal(terminal string, editor string, fn string) error {
 	switch terminal {
 	case "Terminal":
@@ -58,8 +58,11 @@ end tell`, editor, fn)
 		cmd := exec.Command("osascript", "-e", script)
 		return cmd.Run()
 	default:
-		// ghostty, kitty, alacritty, wezterm all support -e to run a command and block
-		cmd := exec.Command(terminal, "-e", editor, fn)
+		// Use `open -nWa` to launch a fresh instance and wait for it to exit.
+		// -n = new instance (avoids client-server IPC issues with Ghostty, etc.)
+		// -W = block until the app exits
+		// --args passes the remaining flags to the terminal app
+		cmd := exec.Command("open", "-nWa", terminal, "--args", "-e", editor, fn)
 		return cmd.Run()
 	}
 }

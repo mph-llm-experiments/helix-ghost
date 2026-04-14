@@ -17,7 +17,7 @@ type CLIFlags struct {
 	Port      int    `kong:"default=4001,name='http-port',help='HTTP port'"`
 	Editor    string `kong:"default='hx',name='editor',help='Editor command'"`
 	Extension string `kong:"default='.txt',name='extension',help='Temp file extension (eg .md, .txt)'"`
-	Terminal  string `kong:"default='ghostty',name='terminal',help='Terminal emulator for daemon mode (ghostty, kitty, alacritty, wezterm, Terminal)'"`
+	Terminal  string `kong:"default='Ghostty',name='terminal',help='Terminal app for daemon mode (Ghostty, kitty, Alacritty, WezTerm, Terminal)'"`
 	Daemon    bool   `kong:"default=false,name='daemon',help='Run as daemon (opens editor in new terminal window)'"`
 }
 

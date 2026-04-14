@@ -53,7 +53,7 @@ connects, the editor opens in a new terminal window automatically.
 ### Quick test
 
 ```bash
-helix-ghost --daemon --terminal=ghostty --extension=.md
+helix-ghost --daemon --terminal=Ghostty --extension=.md
 ```
 
 Then click the GhostText icon in your browser. A new Ghostty window will open with your
@@ -64,7 +64,7 @@ editor and the textarea contents, with markdown syntax highlighting.
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--daemon` | `false` | Run as a background service; opens editor in a new terminal window |
-| `--terminal` | `ghostty` | Terminal emulator to use in daemon mode (`ghostty`, `kitty`, `alacritty`, `wezterm`, or `Terminal` for macOS Terminal.app) |
+| `--terminal` | `Ghostty` | Terminal app for daemon mode (e.g. `Ghostty`, `kitty`, `Alacritty`, `WezTerm`, or `Terminal` for macOS Terminal.app) |
 | `--extension` | `.txt` | File extension for the temp file (e.g. `.md` for markdown highlighting) |
 | `--editor` | `hx` | Editor command |
 | `--http-port` | `4001` | HTTP port for the GhostText protocol |
