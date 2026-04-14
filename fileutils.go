@@ -18,7 +18,7 @@ type FileChangeEvent struct {
 
 // createTempFile creates a temp file and populates it with the provided string
 func createTempFile(text string) (string, error) {
-	tempFile, err := os.CreateTemp("", "*.txt")
+	tempFile, err := os.CreateTemp("", "*"+cli.Extension)
 	if err != nil {
 		return "", err
 	}
@@ -31,12 +31,27 @@ func createTempFile(text string) (string, error) {
 	return tempFile.Name(), nil
 }
 
-// openEditor opens an a specified file in an editor
+// openEditor opens a specified file in an editor (attached to current terminal)
 func openEditor(editor string, fn string) error {
 	cmd := exec.Command(editor, fn)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+// openEditorInTerminal opens the editor in a new Terminal.app window (for daemon mode).
+// It blocks until the editor exits by polling the Terminal tab's busy state.
+func openEditorInTerminal(editor string, fn string) error {
+	script := fmt.Sprintf(`tell application "Terminal"
+	activate
+	set w to do script "%s %s"
+	repeat
+		delay 0.5
+		if not busy of w then exit repeat
+	end repeat
+end tell`, editor, fn)
+	cmd := exec.Command("osascript", "-e", script)
 	return cmd.Run()
 }
 

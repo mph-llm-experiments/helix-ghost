@@ -14,8 +14,10 @@ import (
 )
 
 type CLIFlags struct {
-	Port   int    `kong:"default=4001,name='http-port',help='HTTP port'"`
-	Editor string `kong:"default='hx',name='editor',help='Editor command'"`
+	Port      int    `kong:"default=4001,name='http-port',help='HTTP port'"`
+	Editor    string `kong:"default='hx',name='editor',help='Editor command'"`
+	Extension string `kong:"default='.txt',name='extension',help='Temp file extension (eg .md, .txt)'"`
+	Daemon    bool   `kong:"default=false,name='daemon',help='Run as daemon (opens editor in new Terminal window)'"`
 }
 
 var cli CLIFlags
@@ -116,10 +118,15 @@ func handleWebSockets(ln net.Listener, limiter *ConnectionLimiter) {
 	}
 	GTSession.Filename = fn
 
-	// open the editor in the background, with  a channel to signal this handler when the editor quits
+	// open the editor in the background, with a channel to signal this handler when the editor quits
 	editorDone := make(chan bool, 1)
 	go func() {
-		err := openEditor(cli.Editor, GTSession.Filename)
+		var err error
+		if cli.Daemon {
+			err = openEditorInTerminal(cli.Editor, GTSession.Filename)
+		} else {
+			err = openEditor(cli.Editor, GTSession.Filename)
+		}
 		editorDone <- (err == nil) // true = success, false = error
 	}()
 
