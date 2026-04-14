@@ -74,8 +74,9 @@ editor and the textarea contents, with markdown syntax highlighting.
 A sample plist is included. To install it:
 
 ```bash
-# Edit com.helix-ghost.plist to adjust the binary path and flags to your liking, then:
-cp com.helix-ghost.plist ~/Library/LaunchAgents/
+# First, update the binary path in the plist. If you installed via `go install`:
+sed "s|/path/to/helix-ghost|$(go env GOPATH)/bin/helix-ghost|" com.helix-ghost.plist \
+  > ~/Library/LaunchAgents/com.helix-ghost.plist
 launchctl load ~/Library/LaunchAgents/com.helix-ghost.plist
 ```
 

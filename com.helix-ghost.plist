@@ -6,7 +6,7 @@
 	<string>com.helix-ghost</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/usr/local/bin/helix-ghost</string>
+		<string>/path/to/helix-ghost</string>
 		<string>--daemon</string>
 		<string>--terminal=Ghostty</string>
 		<string>--extension=.md</string>
