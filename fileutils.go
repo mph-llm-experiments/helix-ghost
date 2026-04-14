@@ -18,7 +18,7 @@ type FileChangeEvent struct {
 
 // createTempFile creates a temp file and populates it with the provided string
 func createTempFile(text string) (string, error) {
-	tempFile, err := os.CreateTemp("", "*.txt")
+	tempFile, err := os.CreateTemp("", "*"+cli.Extension)
 	if err != nil {
 		return "", err
 	}
@@ -31,13 +31,40 @@ func createTempFile(text string) (string, error) {
 	return tempFile.Name(), nil
 }
 
-// openEditor opens an a specified file in an editor
+// openEditor opens a specified file in an editor (attached to current terminal)
 func openEditor(editor string, fn string) error {
 	cmd := exec.Command(editor, fn)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
+}
+
+// openEditorInTerminal opens the editor in a new terminal window (for daemon mode).
+// On macOS, app-based terminals (Ghostty, kitty, etc.) are launched via `open -nWa`
+// to avoid IPC issues with already-running instances. Terminal.app uses AppleScript.
+func openEditorInTerminal(terminal string, editor string, fn string) error {
+	switch terminal {
+	case "Terminal":
+		// macOS Terminal.app needs AppleScript; blocks until the tab is no longer busy
+		script := fmt.Sprintf(`tell application "Terminal"
+	activate
+	set w to do script "%s %s"
+	repeat
+		delay 0.5
+		if not busy of w then exit repeat
+	end repeat
+end tell`, editor, fn)
+		cmd := exec.Command("osascript", "-e", script)
+		return cmd.Run()
+	default:
+		// Use `open -nWa` to launch a fresh instance and wait for it to exit.
+		// -n = new instance (avoids client-server IPC issues with Ghostty, etc.)
+		// -W = block until the app exits
+		// --args passes the remaining flags to the terminal app
+		cmd := exec.Command("open", "-nWa", terminal, "--args", "-e", editor, fn)
+		return cmd.Run()
+	}
 }
 
 // watchFile watches a temp file for changes
