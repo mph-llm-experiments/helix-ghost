@@ -8,6 +8,7 @@
 	<array>
 		<string>/usr/local/bin/helix-ghost</string>
 		<string>--daemon</string>
+		<string>--terminal=ghostty</string>
 		<string>--extension=.md</string>
 	</array>
 	<key>RunAtLoad</key>

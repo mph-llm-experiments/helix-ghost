@@ -17,7 +17,8 @@ type CLIFlags struct {
 	Port      int    `kong:"default=4001,name='http-port',help='HTTP port'"`
 	Editor    string `kong:"default='hx',name='editor',help='Editor command'"`
 	Extension string `kong:"default='.txt',name='extension',help='Temp file extension (eg .md, .txt)'"`
-	Daemon    bool   `kong:"default=false,name='daemon',help='Run as daemon (opens editor in new Terminal window)'"`
+	Terminal  string `kong:"default='ghostty',name='terminal',help='Terminal emulator for daemon mode (ghostty, kitty, alacritty, wezterm, Terminal)'"`
+	Daemon    bool   `kong:"default=false,name='daemon',help='Run as daemon (opens editor in new terminal window)'"`
 }
 
 var cli CLIFlags
@@ -123,7 +124,7 @@ func handleWebSockets(ln net.Listener, limiter *ConnectionLimiter) {
 	go func() {
 		var err error
 		if cli.Daemon {
-			err = openEditorInTerminal(cli.Editor, GTSession.Filename)
+			err = openEditorInTerminal(cli.Terminal, cli.Editor, GTSession.Filename)
 		} else {
 			err = openEditor(cli.Editor, GTSession.Filename)
 		}

@@ -40,10 +40,14 @@ func openEditor(editor string, fn string) error {
 	return cmd.Run()
 }
 
-// openEditorInTerminal opens the editor in a new Terminal.app window (for daemon mode).
-// It blocks until the editor exits by polling the Terminal tab's busy state.
-func openEditorInTerminal(editor string, fn string) error {
-	script := fmt.Sprintf(`tell application "Terminal"
+// openEditorInTerminal opens the editor in a new terminal window (for daemon mode).
+// Supports ghostty, kitty, alacritty, wezterm natively via -e flag, and
+// falls back to AppleScript for macOS Terminal.app.
+func openEditorInTerminal(terminal string, editor string, fn string) error {
+	switch terminal {
+	case "Terminal":
+		// macOS Terminal.app needs AppleScript; blocks until the tab is no longer busy
+		script := fmt.Sprintf(`tell application "Terminal"
 	activate
 	set w to do script "%s %s"
 	repeat
@@ -51,8 +55,13 @@ func openEditorInTerminal(editor string, fn string) error {
 		if not busy of w then exit repeat
 	end repeat
 end tell`, editor, fn)
-	cmd := exec.Command("osascript", "-e", script)
-	return cmd.Run()
+		cmd := exec.Command("osascript", "-e", script)
+		return cmd.Run()
+	default:
+		// ghostty, kitty, alacritty, wezterm all support -e to run a command and block
+		cmd := exec.Command(terminal, "-e", editor, fn)
+		return cmd.Run()
+	}
 }
 
 // watchFile watches a temp file for changes
