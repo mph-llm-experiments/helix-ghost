@@ -1,4 +1,4 @@
-module github.com/rahji/helix-ghost
+module github.com/mph-llm-experiments/helix-ghost
 
 go 1.23.3
 
